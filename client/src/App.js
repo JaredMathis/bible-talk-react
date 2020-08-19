@@ -1,7 +1,7 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
 import axios from 'axios';
+import _ from 'lodash';
 
 const url = 'http://bible-api.s3-website-us-east-1.amazonaws.com/';
 
@@ -12,29 +12,34 @@ class App extends React.Component {
   }
   componentDidMount = () => {
     axios.get(url + 'translation/kjv/books.json').then(response => {
-      let books = response.data;
+      let books = response.data.map(b => { 
+        console.log({b})
+        return {
+          name: b.replace('-', ' '),
+          id: b,
+        }
+      });
       this.setState({books});
-      console.log({books});
+      this.setState({selectedBook:books[0].name});
     });
   }
+  bookChanged = (e) => {
+    let name = e.target.value;
+    this.setState({selectedBook:name});
+  }
   render() {
-    let list = this.state.books.map(b => <div>{b}</div>);
+    let list = this.state.books.map(b => 
+      <option key={b.id}>
+        {b.name}
+      </option>);
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            {list}
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
+      <div>
+        <select onChange={this.bookChanged}>
+          {list}
+        </select>
+        <span>
+          {this.state.selectedBook}
+        </span>
       </div>
     );
   }

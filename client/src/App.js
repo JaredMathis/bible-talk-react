@@ -4,6 +4,25 @@ import './App.css';
 import axios from 'axios';
 import _ from 'lodash';
 import { Form, Button, FormGroup, FormControl, ControlLabel } from "react-bootstrap";
+import * as firebase from "firebase/app";
+import "firebase/auth";
+import {
+  FirebaseAuthProvider,
+  FirebaseAuthConsumer,
+  IfFirebaseAuthed,
+  IfFirebaseAuthedAnd
+} from "@react-firebase/auth";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDXHdYSYFFcFSkO_x5RyO7vldjFziPjOFI",
+  authDomain: "wlj-bible-talk.firebaseapp.com",
+  databaseURL: "https://wlj-bible-talk.firebaseio.com",
+  projectId: "wlj-bible-talk",
+  storageBucket: "wlj-bible-talk.appspot.com",
+  messagingSenderId: "122255200891",
+  appId: "1:122255200891:web:29cd80344b9600228c48de",
+  measurementId: "G-VZ522T6GD7"
+};
 
 const url = 'http://bible-api.s3-website-us-east-1.amazonaws.com/';
 
@@ -87,7 +106,7 @@ class App extends React.Component {
         <Form.Group>
           <Form.Label>Book</Form.Label>
           <Form.Control as="select"
-            onChange={this.bookChanged} 
+            onChange={this.bookChanged}
             value={this.state.selectedBook}>
             {books}
           </Form.Control>
@@ -95,7 +114,7 @@ class App extends React.Component {
         <Form.Group>
           <Form.Label>Chapter</Form.Label>
           <Form.Control as="select"
-            onChange={this.chapterChanged} 
+            onChange={this.chapterChanged}
             value={this.state.selectedChapter}>
             {chapters}
           </Form.Control>
@@ -103,7 +122,7 @@ class App extends React.Component {
         <Form.Group>
           <Form.Label>Verse</Form.Label>
           <Form.Control as="select"
-            onChange={this.verseChanged} 
+            onChange={this.verseChanged}
             value={this.state.selectedVerse}>
             {verses}
           </Form.Control>
@@ -111,6 +130,45 @@ class App extends React.Component {
         <div>
           {this.state.verse}
         </div>
+        <FirebaseAuthProvider firebase={firebase} {...firebaseConfig}>
+          <FirebaseAuthConsumer>
+            {({ isSignedIn, firebase }) => {
+              if (isSignedIn === true) {
+                return (
+                  <div>
+                    <h2>You're signed in 🎉</h2>
+                    <button
+                      onClick={() => {
+                        firebase
+                          .app()
+                          .auth()
+                          .signOut();
+                      }}
+                    >
+                      Sign out
+                    </button>
+                  </div>
+                );
+              } else {
+                return (
+                  <div>
+                    <h2>You're not signed in </h2>
+                    <button
+                      onClick={() => {
+                        firebase
+                          .app()
+                          .auth()
+                          .signInAnonymously();
+                      }}
+                    >
+                      Sign in anonymously
+                    </button>
+                  </div>
+                );
+              }
+            }}
+          </FirebaseAuthConsumer>
+        </FirebaseAuthProvider>
       </>
     );
   }

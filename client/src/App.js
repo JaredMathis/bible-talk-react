@@ -38,14 +38,30 @@ class App extends React.Component {
     let name = e.target.value;
     this.updateChapter(name);
   }
-  updateChapter = (name) => {
-    this.setState({selectedChapter:name});
-
-    console.log('updateChapter');
+  updateChapter = (c) => {
+    this.setState({selectedChapter:c});
     axios.get(url + 'translation/kjv/book/' 
       + this.state.selectedBook + '/chapter/' 
-      + this.state.selectedChapter + '/verses.json').then(response => {
-      this.setState({verses: response.data});
+      + c + '/verses.json').then(response => {
+      const verses = response.data;
+      this.setState({verses});
+      this.updateVerse(verses[0]);
+    });
+  }
+  verseChanged = (e) => {
+    let name = e.target.value;
+    this.updateVerse(name);
+  }
+  updateVerse = (v) => {
+    this.setState({selectedVerse:v});
+    this.setState({verse:''});
+    axios.get(url + 'translation/kjv/book/' 
+      + this.state.selectedBook + '/chapter/' 
+      + this.state.selectedChapter + '/verse/' 
+      + v + '.json').then(response => {
+      const verse = response.data.text;
+      console.log({verse});
+      this.setState({verse});
     });
   }
   render() {
@@ -66,15 +82,18 @@ class App extends React.Component {
       </option>);
     return (
       <div>
-        <select onChange={this.bookChanged}>
+        <select onChange={this.bookChanged} value={this.state.selectedBook}>
           {books}
         </select>
-        <select onChange={this.chapterChanged}>
+        <select onChange={this.chapterChanged} value={this.state.selectedChapter}>
           {chapters}
         </select>
-        <select onChange={this.verseChanged}>
+        <select onChange={this.verseChanged} value={this.state.selectedVerse}>
           {verses}
         </select>
+        <div>
+          {this.state.verse}
+        </div>
       </div>
     );
   }

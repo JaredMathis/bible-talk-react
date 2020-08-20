@@ -62,6 +62,12 @@ class Verse extends React.Component {
         const verse = response.data.text;
         this.setState({ verse });
       });
+    let key = [
+      this.state.selectedBook,
+      this.state.selectedChapter,
+      v
+    ].join('.');
+    this.props.onKeyChanged(key);
   }
   render() {
     let books = this.state.books

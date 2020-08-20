@@ -10,6 +10,7 @@ import {
   IfFirebaseAuthed,
   IfFirebaseAuthedAnd
 } from "@react-firebase/auth";
+import SignInOut from '../SignInOut/SignInOut';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDXHdYSYFFcFSkO_x5RyO7vldjFziPjOFI",
@@ -22,50 +23,14 @@ const firebaseConfig = {
   measurementId: "G-VZ522T6GD7"
 };
 
-const Comments = () => (
-  <FirebaseAuthProvider firebase={firebase} {...firebaseConfig}>
-    <FirebaseAuthConsumer>
-      {({ isSignedIn, firebase }) => {
-        if (isSignedIn === true) {
-          return (
-            <div>
-              <h2>You're signed in 🎉</h2>
-              <button
-                onClick={() => {
-                  firebase
-                    .app()
-                    .auth()
-                    .signOut();
-                }}
-              >
-                Sign out
-            </button>
-            </div>
-          );
-        } else {
-          return (
-            <div>
-              <h2>You're not signed in </h2>
-              <button
-                onClick={() => {
-                  firebase
-                    .app()
-                    .auth()
-                    .signInAnonymously();
-                }}
-              >
-                Sign in anonymously
-            </button>
-            </div>
-          );
-        }
-      }}
-    </FirebaseAuthConsumer>
-  </FirebaseAuthProvider>
-);
-
-Comments.propTypes = {};
-
-Comments.defaultProps = {};
+class Comments extends React.Component {
+  render() {
+    return (
+      <FirebaseAuthProvider firebase={firebase} {...firebaseConfig}>
+        <SignInOut></SignInOut>
+      </FirebaseAuthProvider>
+    );
+  }
+};
 
 export default Comments;

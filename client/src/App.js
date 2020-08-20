@@ -1,18 +1,23 @@
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
-import axios from 'axios';
 import _ from 'lodash';
-import { Form, Button, FormGroup, FormControl, ControlLabel } from "react-bootstrap";
 import Comments from './components/Comments/Comments';
 import Verse from './components/Verse/Verse';
 
 class App extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {};
+  }
+  keyChanged = (verseKey) => {
+    this.setState({verseKey});
+  }
   render() {
     return (
       <>
-        <Verse />
-        <Comments />
+        <Verse onKeyChanged={this.keyChanged} />
+        <Comments verseKey={this.state.verseKey} />
       </>
     );
   }

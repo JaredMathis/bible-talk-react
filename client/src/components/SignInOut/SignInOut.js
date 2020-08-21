@@ -25,6 +25,7 @@ class SignInOut extends React.Component {
                       .app()
                       .auth()
                       .signOut();
+                    this.setState({ disabled: false });
                   }}
                 >
                   Sign out

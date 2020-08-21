@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import './SignInOut.css';
+import { Button } from "react-bootstrap";
 
 import {
   FirebaseAuthConsumer,
@@ -18,7 +19,7 @@ class SignInOut extends React.Component {
           if (isSignedIn === true) {
             return (
               <div>
-                <button
+                <Button
                   onClick={() => {
                     firebase
                       .app()
@@ -27,24 +28,23 @@ class SignInOut extends React.Component {
                   }}
                 >
                   Sign out
-      </button>
+      </Button>
               </div>
             );
           } else {
             return (
               <div>
-                <button
+                <Button
                   disabled={this.state.disabled}
                   onClick={() => {
                     this.setState({ disabled: true });
-                    firebase
-                      .app()
-                      .auth()
-                      .signInAnonymously();
+
+                    const googleAuthProvider = new firebase.auth.GoogleAuthProvider();
+                    firebase.auth().signInWithPopup(googleAuthProvider);
                   }}
                 >
-                  Sign in anonymously
-            </button>
+                  Sign in with Google
+            </Button>
               </div>
             );
           }

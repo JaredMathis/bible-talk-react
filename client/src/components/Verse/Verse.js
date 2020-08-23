@@ -1,9 +1,9 @@
 import React from 'react';
 import './Verse.css';
 import axios from 'axios';
-import { Form } from "react-bootstrap";
+import { Form, Button } from "react-bootstrap";
 
-const url = 'http://bible-api.s3-website-us-east-1.amazonaws.com/';
+const url = 'https://bible-api.s3.amazonaws.com/';
 
 class Verse extends React.Component {
   constructor(props) {
@@ -39,6 +39,7 @@ class Verse extends React.Component {
     this.updateChapter(name);
   }
   updateChapter = (c) => {
+    console.log('updateChapter', { c });
     this.setState({ selectedChapter: c });
     axios.get(url + 'translation/kjv/book/'
       + this.state.selectedBook + '/chapter/'
@@ -53,6 +54,7 @@ class Verse extends React.Component {
     this.updateVerse(name);
   }
   updateVerse = (v) => {
+    console.log('updateVerse', { v });
     this.setState({ selectedVerse: v });
     this.setState({ verse: '' });
     axios.get(url + 'translation/kjv/book/'
@@ -111,7 +113,24 @@ class Verse extends React.Component {
             {verses}
           </Form.Control>
         </Form.Group>
-        <div>
+        <Button
+          onClick={() => {
+            let nextVerse = (parseInt(this.state.selectedVerse, 10) + 1) + "";
+            if (this.state.verses.includes(nextVerse)) {
+              this.updateVerse(nextVerse);
+            } else {
+              let nextChapter = (parseInt(this.state.selectedChapter, 10) + 1) + "";
+              if (this.state.chapters.includes(nextChapter)) {
+                this.updateChapter(nextChapter);
+              } else {
+                // TODO
+              }
+            }
+          }}
+        >
+          Next verse
+        </Button>
+        <div className="mt-2">
           {this.state.verse}
         </div>
       </>

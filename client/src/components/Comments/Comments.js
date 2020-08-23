@@ -29,14 +29,13 @@ class Comments extends React.Component {
     };
   }
   render() {
-    console.log('rendered');
     if (!this.props.firebase) {
       return null;
     }
     if (!this.props.comments) {
       return null;
     }
-    console.log({ c: this.props.comments })
+    //console.log({ c: this.props.comments })
     const comments =
       this.props.comments
         .filter(c => c.verseKey === this.props.verseKey)

@@ -1,4 +1,5 @@
 import React from 'react';
+import { DiscussionEmbed } from 'disqus-react';
 import './Comments.css';
 
 import {
@@ -85,6 +86,16 @@ class Comments extends React.Component {
               </ListGroup>
             </FirestoreProvider>
           </FirebaseAuthProvider>
+          <DiscussionEmbed
+            shortname='bible-talk'
+            config={
+              {
+                url: 'https://wlj-bible-talk.web.app',
+                identifier: this.props.verseKey,
+                title: this.props.verseKey
+              }
+            }
+          />
         </Card.Body></Card>
     );
   }

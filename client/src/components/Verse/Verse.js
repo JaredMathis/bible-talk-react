@@ -27,27 +27,31 @@ class Verse extends React.Component {
     let name = e.target.value;
     this.updateBook(name);
   }
-  updateBook = (name) => {
+  updateBook = (name, last) => {
     this.setState({ selectedBook: name });
-    axios.get(url + 'translation/kjv/book/' + name + '/chapters.json').then(response => {
+    let currentBook = this.getBook(name);
+    axios.get(url + 'translation/kjv/book/' + currentBook.id + 
+      '/chapters.json').then(response => {
       const chapters = response.data;
       this.setState({ chapters });
-      this.updateChapter(chapters[0]);
+      let chapter = last ? chapters.length - 1 : 0;
+      this.updateChapter(chapters[chapter], last);
     });
   }
   chapterChanged = (e) => {
     let name = e.target.value;
     this.updateChapter(name);
   }
-  updateChapter = (c) => {
-    console.log('updateChapter', { c });
+  updateChapter = (c, last) => {
     this.setState({ selectedChapter: c });
+    let currentBook = this.getCurrentBook();
     axios.get(url + 'translation/kjv/book/'
-      + this.state.selectedBook + '/chapter/'
+      + currentBook.id + '/chapter/'
       + c + '/verses.json').then(response => {
         const verses = response.data;
         this.setState({ verses });
-        this.updateVerse(verses[0]);
+        let verse = last ? verses.length - 1 : 0;
+        this.updateVerse(verses[verse]);
       });
   }
   verseChanged = (e) => {
@@ -55,11 +59,11 @@ class Verse extends React.Component {
     this.updateVerse(name);
   }
   updateVerse = (v) => {
-    console.log('updateVerse', { v });
+    let currentBook = this.getCurrentBook();
     this.setState({ selectedVerse: v });
     this.setState({ verse: '' });
     axios.get(url + 'translation/kjv/book/'
-      + this.state.selectedBook + '/chapter/'
+      + currentBook.id + '/chapter/'
       + this.state.selectedChapter + '/verse/'
       + v + '.json').then(response => {
         const verse = response.data.text;
@@ -72,15 +76,35 @@ class Verse extends React.Component {
     ].join('.');
     this.props.onKeyChanged(key);
   }
-  nextBook = () => {
-    let currentBook = _.find(this.state.books, { name: this.state.selectedBook });
+  getCurrentBookIndex = () => {
+    let currentBook = this.getCurrentBook();
     let currentIndex = this.state.books.indexOf(currentBook);
+    return currentIndex;
+  }
+  getCurrentBook = () => {
+    return this.getBook(this.state.selectedBook);
+  }
+  getBook = (name) => {
+    let currentBook = _.find(this.state.books, { name });
+    return currentBook;
+  }
+  nextBook = () => {
+    let currentIndex = this.getCurrentBookIndex();
     let nextIndex = currentIndex + 1;
     if (nextIndex > this.state.books.length - 1) {
       nextIndex = 0;
     }
     let nextBook = this.state.books[nextIndex];
     this.updateBook(nextBook.name);
+  }
+  previousBook = () => {
+    let currentIndex = this.getCurrentBookIndex();
+    let previousIndex = currentIndex - 1;
+    if (previousIndex < 0) {
+      previousIndex = this.state.books.length - 1;
+    }
+    let previousBook = this.state.books[previousIndex];
+    this.updateBook(previousBook.name, true);
   }
   render() {
     let books = this.state.books
@@ -125,6 +149,25 @@ class Verse extends React.Component {
           </Form.Control>
         </Form.Group>
         <Button
+          className="ml-1"
+          onClick={() => {
+            let previousVerse = (parseInt(this.state.selectedVerse, 10) - 1) + "";
+            if (this.state.verses.includes(previousVerse)) {
+              this.updateVerse(previousVerse);
+            } else {
+              let previousChapter = (parseInt(this.state.selectedChapter, 10) - 1) + "";
+              if (this.state.chapters.includes(previousChapter)) {
+                this.updateChapter(previousChapter);
+              } else {
+                this.previousBook();
+              }
+            }
+          }}
+        >
+          Previous verse
+        </Button>
+        <Button
+          className="ml-1"
           onClick={() => {
             let nextVerse = (parseInt(this.state.selectedVerse, 10) + 1) + "";
             if (this.state.verses.includes(nextVerse)) {

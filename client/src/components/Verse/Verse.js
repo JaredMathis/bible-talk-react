@@ -2,6 +2,7 @@ import React from 'react';
 import './Verse.css';
 import axios from 'axios';
 import { Form, Button } from "react-bootstrap";
+import _ from 'lodash';
 
 const url = 'https://bible-api.s3.amazonaws.com/';
 
@@ -71,6 +72,16 @@ class Verse extends React.Component {
     ].join('.');
     this.props.onKeyChanged(key);
   }
+  nextBook = () => {
+    let currentBook = _.find(this.state.books, { name: this.state.selectedBook });
+    let currentIndex = this.state.books.indexOf(currentBook);
+    let nextIndex = currentIndex + 1;
+    if (nextIndex > this.state.books.length - 1) {
+      nextIndex = 0;
+    }
+    let nextBook = this.state.books[nextIndex];
+    this.updateBook(nextBook.name);
+  }
   render() {
     let books = this.state.books
       && this.state.books.map(b =>
@@ -123,7 +134,7 @@ class Verse extends React.Component {
               if (this.state.chapters.includes(nextChapter)) {
                 this.updateChapter(nextChapter);
               } else {
-                // TODO
+                this.nextBook();
               }
             }
           }}

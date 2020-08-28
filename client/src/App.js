@@ -1,7 +1,6 @@
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
-import _ from 'lodash';
 import Comments from './components/Comments/Comments';
 import Verse from './components/Verse/Verse';
 

@@ -106,6 +106,12 @@ class Verse extends React.Component {
     let previousBook = this.state.books[previousIndex];
     this.updateBook(previousBook.name, true);
   }
+  redirectInterlinear = () => {
+    let book = this.state.selectedBook.replace(' ','_').toLowerCase();
+    let chapter = this.state.selectedChapter;
+    let verse = this.state.selectedVerse;
+    window.location.href = `https://biblehub.com/interlinear/${book}/${chapter}-${verse}.htm`;
+  }
   render() {
     let books = this.state.books
       && this.state.books.map(b =>
@@ -183,6 +189,12 @@ class Verse extends React.Component {
           }}
         >
           Next verse
+        </Button>
+        <Button
+          className="ml-1"
+          onClick={() => this.redirectInterlinear()}
+        >
+          Interlinear
         </Button>
         <div className="mt-2">
           {this.state.verse}

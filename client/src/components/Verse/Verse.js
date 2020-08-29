@@ -6,13 +6,15 @@ import _ from 'lodash';
 
 const url = 'https://bible-api.s3.amazonaws.com/';
 
+const version = 'nkjv';
+
 class Verse extends React.Component {
   constructor(props) {
     super(props);
     this.state = {};
   }
   componentDidMount = () => {
-    axios.get(url + 'translation/kjv/books.json').then(response => {
+    axios.get(url + `translation/${version}/books.json`).then(response => {
       let books = response.data.map(b => {
         return {
           name: b.replace('-', ' '),
@@ -30,7 +32,7 @@ class Verse extends React.Component {
   updateBook = (name, last) => {
     this.setState({ selectedBook: name });
     let currentBook = this.getBook(name);
-    axios.get(url + 'translation/kjv/book/' + currentBook.id + 
+    axios.get(url + 'translation/' + version + '/book/' + currentBook.id + 
       '/chapters.json').then(response => {
       const chapters = response.data;
       this.setState({ chapters });
@@ -45,7 +47,7 @@ class Verse extends React.Component {
   updateChapter = (c, last) => {
     this.setState({ selectedChapter: c });
     let currentBook = this.getCurrentBook();
-    axios.get(url + 'translation/kjv/book/'
+    axios.get(url + 'translation/' + version + '/book/'
       + currentBook.id + '/chapter/'
       + c + '/verses.json').then(response => {
         const verses = response.data;
@@ -62,7 +64,7 @@ class Verse extends React.Component {
     let currentBook = this.getCurrentBook();
     this.setState({ selectedVerse: v });
     this.setState({ verse: '' });
-    axios.get(url + 'translation/kjv/book/'
+    axios.get(url + 'translation/' + version + '/book/'
       + currentBook.id + '/chapter/'
       + this.state.selectedChapter + '/verse/'
       + v + '.json').then(response => {

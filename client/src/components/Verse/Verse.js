@@ -6,15 +6,27 @@ import _ from 'lodash';
 
 const url = 'https://bible-api.s3.amazonaws.com/';
 
-const version = 'nkjv';
-
 class Verse extends React.Component {
   constructor(props) {
     super(props);
     this.state = {};
   }
   componentDidMount = () => {
-    axios.get(url + `translation/${version}/books.json`).then(response => {
+    axios.get(url + `translations.json`).then(response => {
+      let translations = response.data.map(b => {
+        return {
+          name: b.toUpperCase(),
+          id: b,
+        }
+      });
+      this.setState({ translations });
+      this.updateTranslation(translations[0].name);
+    });
+  }
+  updateTranslation = (name) => {
+    this.setState({ selectedTranslation: name });
+    let translation = this.getTranslation(name);
+    axios.get(url + `translation/${translation.id}/books.json`).then(response => {
       let books = response.data.map(b => {
         return {
           name: b.replace('-', ' '),
@@ -22,8 +34,24 @@ class Verse extends React.Component {
         }
       });
       this.setState({ books });
-      this.updateBook(books[0].name);
+      if (books.map(b => b.name).includes(this.state.selectedBook)) {
+        this.refreshVerse();
+      } else {
+        this.updateBook(books[0].name);
+      }
     });
+  }
+  getTranslation = (name) => {
+    let translation = _.find(this.state.translations, { name });
+    return translation;
+  }
+  getCurrentTranslation = () => {
+    let translation = this.getTranslation(this.state.selectedTranslation);
+    return translation;
+  }
+  translationChanged = (e) => {
+    let name = e.target.value;
+    this.updateTranslation(name);
   }
   bookChanged = (e) => {
     let name = e.target.value;
@@ -32,13 +60,14 @@ class Verse extends React.Component {
   updateBook = (name, last) => {
     this.setState({ selectedBook: name });
     let currentBook = this.getBook(name);
-    axios.get(url + 'translation/' + version + '/book/' + currentBook.id + 
+    let translation = this.getCurrentTranslation();
+    axios.get(url + 'translation/' + translation.id + '/book/' + currentBook.id +
       '/chapters.json').then(response => {
-      const chapters = response.data;
-      this.setState({ chapters });
-      let chapter = last ? chapters.length - 1 : 0;
-      this.updateChapter(chapters[chapter], last);
-    });
+        const chapters = response.data;
+        this.setState({ chapters });
+        let chapter = last ? chapters.length - 1 : 0;
+        this.updateChapter(chapters[chapter], last);
+      });
   }
   chapterChanged = (e) => {
     let name = e.target.value;
@@ -47,7 +76,8 @@ class Verse extends React.Component {
   updateChapter = (c, last) => {
     this.setState({ selectedChapter: c });
     let currentBook = this.getCurrentBook();
-    axios.get(url + 'translation/' + version + '/book/'
+    let translation = this.getCurrentTranslation();
+    axios.get(url + 'translation/' + translation.id + '/book/'
       + currentBook.id + '/chapter/'
       + c + '/verses.json').then(response => {
         const verses = response.data;
@@ -61,22 +91,28 @@ class Verse extends React.Component {
     this.updateVerse(name);
   }
   updateVerse = (v) => {
-    let currentBook = this.getCurrentBook();
     this.setState({ selectedVerse: v });
-    this.setState({ verse: '' });
-    axios.get(url + 'translation/' + version + '/book/'
-      + currentBook.id + '/chapter/'
-      + this.state.selectedChapter + '/verse/'
-      + v + '.json').then(response => {
-        const verse = response.data.text;
-        this.setState({ verse });
-      });
+
+    this.refreshVerse(v);
+
     let key = [
       this.state.selectedBook,
       this.state.selectedChapter,
       v
     ].join('.');
     this.props.onKeyChanged(key);
+  }
+  refreshVerse = (v) => {
+    let currentBook = this.getCurrentBook();
+    let translation = this.getCurrentTranslation();
+    this.setState({ verse: '' });
+    axios.get(url + 'translation/' + translation.id + '/book/'
+      + currentBook.id + '/chapter/'
+      + this.state.selectedChapter + '/verse/'
+      + (v || this.state.selectedVerse) + '.json').then(response => {
+        const verse = response.data.text;
+        this.setState({ verse });
+      });
   }
   getCurrentBookIndex = () => {
     let currentBook = this.getCurrentBook();
@@ -109,12 +145,17 @@ class Verse extends React.Component {
     this.updateBook(previousBook.name, true);
   }
   redirectInterlinear = () => {
-    let book = this.state.selectedBook.replace(' ','_').toLowerCase();
+    let book = this.state.selectedBook.replace(' ', '_').toLowerCase();
     let chapter = this.state.selectedChapter;
     let verse = this.state.selectedVerse;
     window.location.href = `https://biblehub.com/interlinear/${book}/${chapter}-${verse}.htm`;
   }
   render() {
+    let translations = this.state.translations
+      && this.state.translations.map(b =>
+        <option key={b.id}>
+          {b.name}
+        </option>);
     let books = this.state.books
       && this.state.books.map(b =>
         <option key={b.id}>
@@ -132,6 +173,14 @@ class Verse extends React.Component {
         </option>);
     return (
       <>
+        <Form.Group>
+          <Form.Label>Translation</Form.Label>
+          <Form.Control as="select"
+            onChange={this.translationChanged}
+            value={this.state.selectedTranslation}>
+            {translations}
+          </Form.Control>
+        </Form.Group>
         <Form.Group>
           <Form.Label>Book</Form.Label>
           <Form.Control as="select"

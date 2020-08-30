@@ -148,7 +148,8 @@ class Verse extends React.Component {
     let book = this.state.selectedBook.replace(' ', '_').toLowerCase();
     let chapter = this.state.selectedChapter;
     let verse = this.state.selectedVerse;
-    window.location.href = `https://biblehub.com/interlinear/${book}/${chapter}-${verse}.htm`;
+    let url = `https://biblehub.com/interlinear/${book}/${chapter}-${verse}.htm`;
+    window.open(url,'_blank');
   }
   render() {
     let translations = this.state.translations

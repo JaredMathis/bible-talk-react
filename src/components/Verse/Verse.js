@@ -11,17 +11,16 @@ class Verse extends React.Component {
     super(props);
     this.state = {};
   }
-  componentDidMount = () => {
-    axios.get(url + `translations.json`).then(response => {
-      let translations = response.data.map(b => {
-        return {
-          name: b.toUpperCase(),
-          id: b,
-        }
-      });
-      this.setState({ translations });
-      this.updateTranslation(translations[0].name);
+  componentDidMount = async () => {
+    let response = await axios.get(url + `translations.json`);
+    let translations = response.data.map(b => {
+      return {
+        name: b.toUpperCase(),
+        id: b,
+      }
     });
+    this.setState({ translations });
+    this.updateTranslation(translations[0].name);
   }
   updateTranslation = (name) => {
     this.setState({ selectedTranslation: name });

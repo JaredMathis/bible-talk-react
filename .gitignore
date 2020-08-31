@@ -104,3 +104,4 @@ dist
 .tern-port
 client/.firebase/hosting.YnVpbGQ.cache
 client/.firebase/hosting.YnVpbGQ.cache
+*.cache

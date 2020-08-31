@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import './SignInOut.css';
 import { Button } from "react-bootstrap";
 
